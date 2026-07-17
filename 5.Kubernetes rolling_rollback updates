@@ -1,0 +1,82 @@
+Kubernetes rolling_rollback updates
+
+1.We have deployed a simple web application. Please inspect the Pods and Services within the default namespace.
+ Note: Please wait for the application to complete its deployment. Once the deployment is finished, access the application by clicking on the link labeled Webapp Portal located above your terminal.
+
+2.What is the current color of the web application?
+Access the Webapp Portal.
+
+3.info
+Execute the script named curl-test.sh to send multiple requests for testing the web application. Please make a note of the output produced.
+Execute the script at /root/curl-test.sh.
+bash /root/curl-test.sh
+
+4.Inspect the deployment in the default namespace to identify the number of Pods that have been deployed by it.
+
+* Given that there is only one deployment in the default namespace, please execute the command kubectl describe deployment to review the Desired Replicas.
+* Alternatively, you may run the command kubectl describe deployment frontend to specifically examine the frontend deployment.
+
+5.What container image is used to deploy the applications?
+Since there is only one deployment in the default namespace, please execute the command kubectl describe deployment and observe the Images section.
+
+6.Inspect the deployment to determine the current strategy in use.
+Since there is only one deployment in the default namespace, please execute the command kubectl describe deployment and examine the StrategyType.
+
+7.What would occur if you were to upgrade the application at this moment?
+The Kubernetes Deployment is configured to utilize the RollingUpdate strategy, with maxUnavailable set to 25%. This configuration indicates that during an upgrade, a maximum of 25% of the pods may be unavailable at any given time.
+
+8.Let us try that. Upgrade the application by updating the image in the deployment to kodekloud/webapp-color:v2.
+
+Please ensure that you do not delete and recreate the deployment. Instead, update the existing deployment by setting the new image name.
+
+You can update the image using one of the following two methods:
+* Recommended Approach: To avoid any YAML-based issues, use the command below: kubectl set image deploy frontend simple-webapp=kodekloud/webapp-color:v2 
+* Alternative Method: You may also edit the deployment manually by executing the command below: kubectl edit deployment frontend  In this case, locate the container image field and modify it to kodekloud/webapp-color:v2. Ensure that you save your changes and exit thereafter.
+
+9.Please execute the script curl-test.sh once more. Observe that the requests now target both the older and newer versions (if checked immediately). Importantly, none of the requests should fail.
+Execute the script located at /root/curl-test.sh using the following command:
+bash /root/curl-test.sh
+
+Expected output:
+Hello, Application Version: v1 ; Color: blue OK
+
+Hello, Application Version: v2 ; Color: green OK
+
+Note: The update may have already been applied, so you might only observe the updated response.
+
+10.How many PODs can be down simultaneously for an upgrade?
+existing strategy settings and note that the current number of PODs is 4.
+
+Execute the command kubectl describe deployment and locate MaxUnavailable under the RollingUpdateStrategy section in the deployment details.
+
+11.Change the deployment strategy to Recreate.
+
+Delete and re-create the deployment if necessary. Only update the strategy type for the existing deployment.
+
+Run the command kubectl edit deployment frontend to modify the necessary field. Additionally, ensure that you delete the properties of rollingUpdate found at spec.strategy.rollingUpdate.
+
+12.Upgrade the application by configuring the deployment to use the image kodekloud/webapp-color:v3.
+
+Do not delete and re-create the deployment. Only set the new image name for the existing deployment.
+
+Execute the command: kubectl edit deployment frontend to modify the necessary field.
+
+To upgrade the application image to kodekloud/webapp-color:v3 without recreating the deployment, run:
+kubectl set image deploy frontend simple-webapp=kodekloud/webapp-color:v3
+This updates the container image on the existing frontend deployment. Because the deployment strategy is Recreate, Kubernetes terminates all existing Pods and then starts new Pods using the v3 image, which can cause the application to be briefly unavailable.
+Alternatively, you can edit the deployment:
+kubectl edit deployment frontend
+Then, in the spec.template.spec.containers section, modify:
+image: kodekloud/webapp-color:v2
+to:
+image: kodekloud/webapp-color:v3
+Save and exit to apply the change. The Pods will be terminated and recreated simultaneously with the new image due to the Recreate strategy.
+After the update, you can verify:
+kubectl describe deployment frontend | grep Image
+kubectl get pods -o wide
+This will show you the updated image, reflecting the change to kodekloud/webapp-color:v3.
+
+13.Run the script curl-test.sh once more and observe the failures. Please wait for the new application to become fully operational. You should notice that the requests no longer reach both versions.
+Execute the script located at /root/curl-test.sh using the following command:
+bash /root/curl-test.sh
+
