@@ -1,0 +1,406 @@
+Kubernetes-replicaset
+
+1.How many PODs exist on the system?
+In the current(default) namespace.
+
+Run the command: kubectl get pods or kubectl get po and count the number of pods.
+
+controlplane ~ ➜  kubectl get pods
+No resources found in default namespace.
+
+
+2.How many ReplicaSets exist on the system?
+In the current(default) namespace.
+
+Run the command: kubectl get replicaset or kubectl get rs and count the number of ReplicaSets.
+
+controlplane ~ ➜  kubectl get replicaset
+No resources found in default namespace.
+
+3.How about now? How many ReplicaSets do you see?
+We just made a few changes!
+
+controlplane ~ ➜  kubectl get replicaset
+NAME              DESIRED   CURRENT   READY   AGE
+new-replica-set   4         4         0       97s
+
+4.How many PODs are DESIRED in the new-replica-set?
+
+Run the command: kubectl get replicaset and look at the count under the Desired column.
+
+5.What is the image used to create the pods in the new-replica-set?
+Run the command: kubectl describe replicaset and look under the Containers section.
+
+controlplane ~ ➜  kubectl describe replicaset
+Name:         new-replica-set
+Namespace:    default
+Selector:     name=busybox-pod
+Labels:       <none>
+Annotations:  <none>
+Replicas:     4 current / 4 desired
+Pods Status:  0 Running / 4 Waiting / 0 Succeeded / 0 Failed
+Pod Template:
+  Labels:  name=busybox-pod
+  Containers:
+   busybox-container:
+    Image:      busybox777
+    Port:       <none>
+    Host Port:  <none>
+    Command:
+      sh
+      -c
+      echo Hello Kubernetes! && sleep 3600
+    Environment:  <none>
+    Mounts:       <none>
+  Volumes:        <none>
+Events:
+  Type    Reason            Age    From                   Message
+  ----    ------            ----   ----                   -------
+  Normal  SuccessfulCreate  3m56s  replicaset-controller  Created pod: new-replica-set-z4d5w
+  Normal  SuccessfulCreate  3m56s  replicaset-controller  Created pod: new-replica-set-45jzp
+  Normal  SuccessfulCreate  3m56s  replicaset-controller  Created pod: new-replica-set-2hg46
+  Normal  SuccessfulCreate  3m56s  replicaset-controller  Created pod: new-replica-set-5p7vj
+
+controlplane ~ ➜  
+
+6.How many PODs are READY in the new-replica-set?
+Run the command: kubectl get replicaset and look at the count under the Ready column.
+
+controlplane ~ ➜  kubectl get replicaset
+NAME              DESIRED   CURRENT   READY   AGE
+new-replica-set   4         4         0       5m23s
+
+7.Why do you think the PODs are not ready?
+
+Run the command: kubectl describe pods and look at under the Events section.
+
+controlplane ~ ➜  kubectl describe pods
+Name:             new-replica-set-z4d5w
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             controlplane/10.244.37.26
+Start Time:       Fri, 17 Jul 2026 16:03:13 +0000
+Labels:           name=busybox-pod
+Annotations:      <none>
+Status:           Pending
+IP:               10.42.0.9
+IPs:
+  IP:           10.42.0.9
+Controlled By:  ReplicaSet/new-replica-set
+Containers:
+  busybox-container:
+    Container ID:  
+    Image:         busybox777
+    Image ID:      
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -c
+      echo Hello Kubernetes! && sleep 3600
+    State:          Waiting
+      Reason:       ImagePullBackOff
+    Ready:          False
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-bd5z2 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-bd5z2:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                   From               Message
+  ----     ------     ----                  ----               -------
+  Normal   Scheduled  7m9s                  default-scheduler  Successfully assigned default/new-replica-set-z4d5w to controlplane
+  Normal   Pulling    5m44s (x4 over 7m8s)  kubelet            Pulling image "busybox777"
+  Warning  Failed     5m43s (x4 over 7m7s)  kubelet            Failed to pull image "busybox777": failed to pull and unpack image "docker.io/library/busybox777:latest": failed to resolve reference "docker.io/library/busybox777:latest": pull access denied, repository does not exist or may require authorization: server message: insufficient_scope: authorization failed
+  Warning  Failed     5m43s (x4 over 7m7s)  kubelet            Error: ErrImagePull
+  Warning  Failed     5m16s (x6 over 7m7s)  kubelet            Error: ImagePullBackOff
+  Normal   BackOff    2m2s (x20 over 7m7s)  kubelet            Back-off pulling image "busybox777"
+
+
+Name:             new-replica-set-45jzp
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             controlplane/10.244.37.26
+Start Time:       Fri, 17 Jul 2026 16:03:13 +0000
+Labels:           name=busybox-pod
+Annotations:      <none>
+Status:           Pending
+IP:               10.42.0.10
+IPs:
+  IP:           10.42.0.10
+Controlled By:  ReplicaSet/new-replica-set
+Containers:
+  busybox-container:
+    Container ID:  
+    Image:         busybox777
+    Image ID:      
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -c
+      echo Hello Kubernetes! && sleep 3600
+    State:          Waiting
+      Reason:       ImagePullBackOff
+    Ready:          False
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-c5726 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-c5726:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                   From               Message
+  ----     ------     ----                  ----               -------
+  Normal   Scheduled  7m9s                  default-scheduler  Successfully assigned default/new-replica-set-45jzp to controlplane
+  Normal   Pulling    5m44s (x4 over 7m8s)  kubelet            Pulling image "busybox777"
+  Warning  Failed     5m43s (x4 over 7m7s)  kubelet            Failed to pull image "busybox777": failed to pull and unpack image "docker.io/library/busybox777:latest": failed to resolve reference "docker.io/library/busybox777:latest": pull access denied, repository does not exist or may require authorization: server message: insufficient_scope: authorization failed
+  Warning  Failed     5m43s (x4 over 7m7s)  kubelet            Error: ErrImagePull
+  Warning  Failed     5m20s (x6 over 7m7s)  kubelet            Error: ImagePullBackOff
+  Normal   BackOff    2m2s (x20 over 7m7s)  kubelet            Back-off pulling image "busybox777"
+
+
+Name:             new-replica-set-2hg46
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             controlplane/10.244.37.26
+Start Time:       Fri, 17 Jul 2026 16:03:13 +0000
+Labels:           name=busybox-pod
+Annotations:      <none>
+Status:           Pending
+IP:               10.42.0.12
+IPs:
+  IP:           10.42.0.12
+Controlled By:  ReplicaSet/new-replica-set
+Containers:
+  busybox-container:
+    Container ID:  
+    Image:         busybox777
+    Image ID:      
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -c
+      echo Hello Kubernetes! && sleep 3600
+    State:          Waiting
+      Reason:       ImagePullBackOff
+    Ready:          False
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-kbnv7 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-kbnv7:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                   From               Message
+  ----     ------     ----                  ----               -------
+  Normal   Scheduled  7m9s                  default-scheduler  Successfully assigned default/new-replica-set-2hg46 to controlplane
+  Normal   Pulling    5m35s (x4 over 7m8s)  kubelet            Pulling image "busybox777"
+  Warning  Failed     5m34s (x4 over 7m7s)  kubelet            Failed to pull image "busybox777": failed to pull and unpack image "docker.io/library/busybox777:latest": failed to resolve reference "docker.io/library/busybox777:latest": pull access denied, repository does not exist or may require authorization: server message: insufficient_scope: authorization failed
+  Warning  Failed     5m34s (x4 over 7m7s)  kubelet            Error: ErrImagePull
+  Warning  Failed     5m21s (x6 over 7m7s)  kubelet            Error: ImagePullBackOff
+  Normal   BackOff    2m6s (x20 over 7m7s)  kubelet            Back-off pulling image "busybox777"
+
+
+Name:             new-replica-set-5p7vj
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             controlplane/10.244.37.26
+Start Time:       Fri, 17 Jul 2026 16:03:13 +0000
+Labels:           name=busybox-pod
+Annotations:      <none>
+Status:           Pending
+IP:               10.42.0.11
+IPs:
+  IP:           10.42.0.11
+Controlled By:  ReplicaSet/new-replica-set
+Containers:
+  busybox-container:
+    Container ID:  
+    Image:         busybox777
+    Image ID:      
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -c
+      echo Hello Kubernetes! && sleep 3600
+    State:          Waiting
+      Reason:       ImagePullBackOff
+    Ready:          False
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-tfspc (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-tfspc:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                   From               Message
+  ----     ------     ----                  ----               -------
+  Normal   Scheduled  7m9s                  default-scheduler  Successfully assigned default/new-replica-set-5p7vj to controlplane
+  Normal   Pulling    5m34s (x4 over 7m8s)  kubelet            Pulling image "busybox777"
+  Warning  Failed     5m33s (x4 over 7m7s)  kubelet            Failed to pull image "busybox777": failed to pull and unpack image "docker.io/library/busybox777:latest": failed to resolve reference "docker.io/library/busybox777:latest": pull access denied, repository does not exist or may require authorization: server message: insufficient_scope: authorization failed
+  Warning  Failed     5m33s (x4 over 7m7s)  kubelet            Error: ErrImagePull
+  Warning  Failed     5m21s (x6 over 7m7s)  kubelet            Error: ImagePullBackOff
+  Normal   BackOff    2m6s (x20 over 7m7s)  kubelet            Back-off pulling image "busybox777"
+
+8.Now, delete one of the four PODs directly using kubectl delete command.
+
+Run the command: kubectl delete pod <pod-name>
+
+controlplane ~ ➜  kubectl delete pod new-replica-set-5p7vj
+pod "new-replica-set-5p7vj" deleted
+
+9.How many PODs exist now?
+Run the command: kubectl get pods and count the number of PODs.
+
+controlplane ~ ➜  kubectl get pods
+NAME                    READY   STATUS             RESTARTS   AGE
+new-replica-set-z4d5w   0/1     ImagePullBackOff   0          12m
+new-replica-set-45jzp   0/1     ImagePullBackOff   0          12m
+new-replica-set-2hg46   0/1     ImagePullBackOff   0          12m
+new-replica-set-h4clc   0/1     ImagePullBackOff   0          90s
+
+10.Why are there still 4 PODs, even after you deleted one?
+
+Replicates ensures the desired number of pod always run
+
+11.Create a ReplicaSet using the replicaset-definition-1.yaml file located at /root/.
+
+There is an issue with the file, so try to fix it.
+
+Run the command: You can check for apiVersion of replicaset by command kubectl api-resources | grep replicaset
+
+kubectl explain replicaset | grep VERSION and correct the apiVersion for ReplicaSet.
+
+Then run the command: kubectl create -f /root/replicaset-definition-1.yaml
+
+12.Fix the issue in the replicaset-definition-2.yaml file and create a ReplicaSet using it.
+
+This file is located at /root/.
+
+Update the /root/replicaset-definition-2.yaml file as follows: 
+---
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: replicaset-2
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      tier: nginx
+  template:
+    metadata:
+      labels:
+        tier: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+Then run: kubectl apply -f /root/replicaset-definition-2.yaml
+
+The values for labels on lines 9 and 13 should match.
+
+13.Delete the two newly created ReplicaSets - replicaset-1 and replicaset-2
+
+Run the command: kubectl delete replicaset <replicaset-name> or kubectl delete -f <file-name>.yaml
+
+14.Fix the original replica set new-replica-set to use the correct image with name as busybox.
+
+Either delete and recreate the ReplicaSet or update the existing ReplicaSet and then delete all PODs, so new ones with the correct image will be created.
+If you opt to delete the ReplicaSet and recreate it, please refer to the file named new-replica-set.yaml, which is saved in the /root/ directory for your convenience and fix it.
+
+Run the command: kubectl edit replicaset new-replica-set, modify the image name and then save the file.
+
+Delete the previous pods to get the new ones with the correct image.
+
+For this, run the command: kubectl delete po <pod-name>
+
+15.Use kubectl scale command or edit the replicaset using kubectl edit replicaset.
+
+Use kubectl scale command or edit the replicaset using kubectl edit replicaset.
+
+16.Now scale the ReplicaSet down to 2 PODs.
+
+Use the kubectl scale command or edit the replicaset using kubectl edit replicaset.
+
+Now scale the ReplicaSet down to 2 PODs.
+
+Use the kubectl scale command or edit the replicaset using kubectl edit replicaset.
+
+
+
+
+
+
