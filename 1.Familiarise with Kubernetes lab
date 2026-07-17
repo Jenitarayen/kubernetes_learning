@@ -1,0 +1,26 @@
+Familiarise with Kubernetes lab
+
+1.How many nodes are part of the cluster?
+
+Type kubectl get nodes in the terminal on the right and count the number of nodes that are listed.
+
+controlplane ~ ➜  kubectl get nodes
+NAME           STATUS   ROLES                  AGE     VERSION
+controlplane   Ready    control-plane,master   3m34s   v1.29.0+k3s1
+
+2.What is the version of Kubernetes running on the nodes ?
+
+Type kubectl version in the terminal.
+
+controlplane ~ ➜  kubectl version
+Client Version: v1.29.0+k3s1
+Kustomize Version: v5.0.4-0.20230601165947-6ce0bf390ce3
+Server Version: v1.29.0+k3s1
+
+3.What is the flavor and version of Operating System on which the Kubernetes nodes are running?
+
+Type kubectl get nodes -o wide and look at the Operating System.
+
+controlplane ~ ➜  kubectl get nodes -o wide
+NAME           STATUS   ROLES                  AGE     VERSION        INTERNAL-IP    EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION      CONTAINER-RUNTIME
+controlplane   Ready    control-plane,master   5m38s   v1.29.0+k3s1   10.244.85.88   <none>        Alpine Linux v3.16   6.8.0-106-generic   containerd://1.7.11-k3s2
