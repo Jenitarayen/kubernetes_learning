@@ -1,0 +1,233 @@
+Kubernetes pods
+
+1.How many pods exist on the system?
+In the current(default) namespace.
+
+There are no pods in the default namespace currently, so the correct answer is 0.
+
+2.Create a new pod using the nginx image.
+Run the command: kubectl run nginx --image=nginx
+
+controlplane ~ ➜  kubectl run nginx --image=nginx
+pod/nginx created
+
+3.How many pods are created now?
+Note: We have created a few more pods. So please check again in the current(default) namespace.
+
+Run the command kubectl get pods and count the number of pods.
+
+controlplane ~ ➜  kubectl get pods
+NAME            READY   STATUS              RESTARTS   AGE
+newpods-sgh8n   1/1     Running             0          88s
+newpods-nd75f   1/1     Running             0          88s
+newpods-mf8md   1/1     Running             0          88s
+nginx           0/1     ContainerCreating   0          50s
+
+4.Which image is specified for the pods whose names begin with the newpods- prefix?
+You must look at one of the new pods in detail to figure this out.
+
+Run the command kubectl describe pod newpods-<id> and look under the containers section.
+
+5.Which nodes are these pods placed on?
+You must look at all the pods in detail to figure this out.
+
+Run the command kubectl describe pod newpods-<id> and look at the node field.
+Alternatively run kubectl get pods -o wide and check for the node the pod is placed on.
+
+controlplane ~ ➜  kubectl get pods -o wide
+NAME            READY   STATUS    RESTARTS   AGE     IP           NODE           NOMINATED NODE   READINESS GATES
+newpods-sgh8n   1/1     Running   0          3m42s   10.42.0.9    controlplane   <none>           <none>
+newpods-nd75f   1/1     Running   0          3m42s   10.42.0.10   controlplane   <none>           <none>
+newpods-mf8md   1/1     Running   0          3m42s   10.42.0.11   controlplane   <none>           <none>
+nginx           1/1     Running   0          3m4s    10.42.0.12   controlplane   <none>           <none>
+
+6.We just created a new pod named webapp. How many containers are part of the webapp pod?
+Note: Ignore the state of the pod for now.
+
+Run the command kubectl describe pod webapp and look under the Containers section.
+
+ontrolplane ~ ➜  kubectl describe pod webapp
+Name:             webapp
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             controlplane/10.244.102.177
+Start Time:       Fri, 17 Jul 2026 13:56:47 +0000
+Labels:           <none>
+Annotations:      <none>
+Status:           Pending
+IP:               10.42.0.13
+IPs:
+  IP:  10.42.0.13
+Containers:
+  nginx:
+    Container ID:   containerd://fab0c38d5567f5ae64230c37a930c8a5e22764b1f7b70f62903fa833de30a485
+    Image:          nginx
+    Image ID:       docker.io/library/nginx@sha256:5a88c9c45479443d7be2eadc894b4ed0a9801bae03d97a5760ae13b5c2005942
+    Port:           <none>
+    Host Port:      <none>
+    State:          Running
+      Started:      Fri, 17 Jul 2026 13:56:49 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-7vf2r (ro)
+  agentx:
+    Container ID:   
+    Image:          agentx
+    Image ID:       
+    Port:           <none>
+    Host Port:      <none>
+    State:          Waiting
+      Reason:       ImagePullBackOff
+    Ready:          False
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-7vf2r (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-7vf2r:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                From               Message
+  ----     ------     ----               ----               -------
+  Normal   Scheduled  77s                default-scheduler  Successfully assigned default/webapp to controlplane
+  Normal   Pulling    76s                kubelet            Pulling image "nginx"
+  Normal   Pulled     76s                kubelet            Successfully pulled image "nginx" in 496ms (496ms including waiting)
+  Normal   Created    76s                kubelet            Created container nginx
+  Normal   Started    75s                kubelet            Started container nginx
+  Normal   Pulling    32s (x3 over 75s)  kubelet            Pulling image "agentx"
+  Warning  Failed     31s (x3 over 74s)  kubelet            Failed to pull image "agentx": failed to pull and unpack image "docker.io/library/agentx:latest": failed to resolve reference "docker.io/library/agentx:latest": pull access denied, repository does not exist or may require authorization: server message: insufficient_scope: authorization failed
+  Warning  Failed     31s (x3 over 74s)  kubelet            Error: ErrImagePull
+  Normal   BackOff    4s (x4 over 74s)   kubelet            Back-off pulling image "agentx"
+  Warning  Failed     4s (x4 over 74s)   kubelet            Error: ImagePullBackOff
+
+controlplane ~ ➜  
+
+7.What images are used in the new webapp pod?
+You must look at all the pod's containers in detail to figure this out.
+
+Run the command kubectl describe pod webapp and look at the images used.
+
+8.What is the state of the container agentx in the pod webapp?
+Wait for it to finish the ContainerCreating state
+
+Run the command kubectl describe pod webapp and look at the state of the agentx container.
+
+9.Why do you think the container agentx in pod webapp is in error?
+Inspect the events of the pod to determine the reason for the container's failure to start.
+
+Run the command kubectl describe pod webapp and look under the events section.
+An image by that name does not exist in DockerHub.
+
+10.What does the READY column in the output of the kubectl get pods command indicate?
+
+Run kubectl get pods and examine the output.
+The READY column shows: Ready containers in pod / Total containers in pod
+
+controlplane ~ ➜  kubectl get pods
+NAME            READY   STATUS             RESTARTS   AGE
+newpods-sgh8n   1/1     Running            0          10m
+newpods-nd75f   1/1     Running            0          10m
+newpods-mf8md   1/1     Running            0          10m
+nginx           1/1     Running            0          9m39s
+webapp          1/2     ImagePullBackOff   0          6m21s
+
+11.Delete the webapp Pod.
+
+Once deleted, wait for the pod to fully terminate.
+
+Run the command: kubectl delete pod webapp
+
+controlplane ~ ➜  kubectl delete pod webapp
+pod "webapp" deleted
+
+12.Create a new pod with the name redis and the image redis123.
+
+Utilize a pod-definition YAML file. Please note that the image name redis123 is intentionally incorrect. Do NOT correct the image at this stage; you will address this in the subsequent task.
+
+We use kubectl run command with --dry-run=client -o yaml option to create a manifest file :-
+kubectl run redis --image=redis123 --dry-run=client -o yaml > redis-definition.yaml
+  After that, using kubectl create -f command to create a resource from the manifest file :-
+kubectl create -f redis-definition.yaml 
+Verify the work by running kubectl get command :-
+kubectl get pods
+
+controlplane ~ ➜  kubectl run redis --image=redis123 --dry-run=client -o yaml > redis-definition.yaml
+
+controlplane ~ ➜  kubectl create -f redis-definition.yaml 
+pod/redis created
+
+controlplane ~ ➜  kubectl get pods
+NAME            READY   STATUS         RESTARTS   AGE
+newpods-sgh8n   1/1     Running        0          12m
+newpods-nd75f   1/1     Running        0          12m
+newpods-mf8md   1/1     Running        0          12m
+nginx           1/1     Running        0          12m
+redis           0/1     ErrImagePull   0          9s
+
+
+13.Now change the image on this pod to redis.
+Once done, the pod should be in a running state.
+
+Use the kubectl edit command to update the image of the pod to redis.
+kubectl edit pod redis
+If you used a pod definition file then update the image from redis123 to redis in the definition file via Vi or Nano editor and then run kubectl apply command to update the image :-
+kubectl apply -f redis-definition.yaml 
+
+# Please edit the object below. Lines beginning with a '#' will be ignored,
+# and an empty file will abort the edit. If an error occurs while saving this file will be
+# reopened with the relevant failures.
+#
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: "2026-07-17T14:05:29Z"
+  labels:
+    run: redis
+  name: redis
+  namespace: default
+  resourceVersion: "1047"
+  uid: 9b0f7a71-0536-4d5d-a2c1-040bc2b33a31
+spec:
+  containers:
+  - image: redis123
+    imagePullPolicy: Always
+    name: redis
+    resources: {}
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-qrd7c
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  nodeName: controlplane
+  preemptionPolicy: PreemptLowerPriority
+"/tmp/kubectl-edit-217028449.yaml" 112L, 2948B
+
+controlplane ~ ✖ kubectl edit pod redis
+pod/redis edited
+
+controlplane ~ ➜  kubectl apply -f redis-definition.yaml 
+Warning: resource pods/redis is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+pod/redis configured
+==========================================
+
