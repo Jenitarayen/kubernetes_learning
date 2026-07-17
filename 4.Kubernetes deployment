@@ -1,0 +1,76 @@
+Kubernetes deployment
+
+1.How many PODs exist on the system?
+In the current(default) namespace.
+
+Run the command: kubectl get pods or kubectl get po and count the number of PODs.
+
+controlplane ~ ✖ kubectl get pods
+No resources found in default namespace.
+
+2.How many ReplicaSets exist on the system?
+In the current(default) namespace.
+
+Run the command: kubectl get replicaset or kubectl get rs and count the number of ReplicaSets.
+
+controlplane ~ ➜  kubectl get replicaset
+No resources found in default namespace.
+
+3.How many Deployments exist on the system?
+In the current(default) namespace.
+
+Run the command: kubectl get deployment or kubectl get deploy and count the number of Deployments.
+controlplane ~ ➜  kubectl get deployment 
+error: the server doesn't have a resource type "deployment\u00a0"
+
+4.How many Deployments exist on the system now?
+We just created a Deployment! Check again!
+
+Run the command: kubectl get deployment and count the number of Deployments.
+
+5.How many ReplicaSets exist on the system now?
+Run the command: kubectl get replicaset and count the number of ReplicaSets.
+
+6.How many PODs exist on the system now?
+Run the command: kubectl get pods and count the number of PODs.
+
+7.Out of all the existing PODs, how many are ready?
+Run the command: kubectl get deployment and count the number of PODs.
+
+8.What is the image used to create the pods in the new deployment?
+Run the command: kubectl describe deployment <deployment-name> and look under the Containers section.
+
+9.Why do you think the deployment is not ready?
+Run the command: kubectl describe pods <pod-name> and look under the Events section.
+
+10.Create a new Deployment using the deployment-definition-1.yaml file located at /root/.
+
+There is an issue with the file, so try to fix it.
+
+Run the command: kubectl explain deployment | head -n3 and correct the value of kind.
+
+11.Create a new Deployment with the below attributes using your own deployment definition file.
+
+Name: httpd-frontend; Replicas: 3; Image: httpd:2.4-alpine
+
+Solution manifest file deployment-definition-httpd.yaml: 
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: httpd-frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      name: httpd-frontend
+  template:
+    metadata:
+      labels:
+        name: httpd-frontend
+    spec:
+      containers:
+      - name: httpd-frontend
+        image: httpd:2.4-alpine
+Then run kubectl create -f deployment-definition-httpd.yaml
+
